@@ -14,7 +14,12 @@ let timeoutCount = timeout;
 let stick = new Ant.GarminStick2;
 let sensor = new Ant.HeartRateSensor(stick);
 
-app.get('/', (req, res) => { res.sendFile(__dirname + '/index.html') });
+let heartrate = {bpm: 0, measured_at: Date.now()};
+
+app.get('/', (req, res) => { res.sendFile(__dirname + '/html/index.html') });
+app.use('/', express.static('html'))
+app.get('/hr', (req, res) => {res.send(heartrate)})
+
 http.listen(PORT, () => { console.log('server listening. Port:' + PORT) });
 
 io.on('connection', (socket) => {
@@ -23,16 +28,30 @@ io.on('connection', (socket) => {
     });
 });
 
-sensor.on('hbData', data => {
+let onHR = (data) => {
     let did = 'id' + data.DeviceID;
     if (!deviceCounts[did]) deviceCounts[did] = data.BeatCount;
-    else if (deviceCounts[did] != data.BeatCount) {
+    else if (deviceCounts[did] !== data.BeatCount) {
         deviceCounts[did] = data.BeatCount;
         io.emit('beats', data.DeviceID, data.ComputedHeartRate);
         deviceBeat[did] = data.ComputedHeartRate;
+        heartrate = {bpm: data.ComputedHeartRate, measured_at: Date.now()};
     }
     timeoutCount = timeout;
-});
+}
+
+sensor.on('hbData', onHR);
+
+// let count = 0;
+//
+// let randomHRLoop = setInterval(() => {
+//     let data = {
+//         DeviceID: "1231321",
+//         BeatCount: count++,
+//         ComputedHeartRate: Math.floor(60 + Math.random()*150)
+//     }
+//     onHR(data)
+// }, 567);
 
 
 stick.on('startup', () => {
