@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "main": "main.js",
+  "bin": "main.js",
   "dependencies": {
     "ant-plus": "^0.1.24",
     "bl": ">=4.0.3",
