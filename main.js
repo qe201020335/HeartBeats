@@ -83,14 +83,14 @@ if(!stick.is_present()) console.log('Stick not found!');
 if(!stick.open()) console.log('Stick open failed!');
 
 let timeoutCheckLoop = setInterval(() => {
+
     console.clear();
     console.log('count:', JSON.stringify(deviceCounts));
     console.log('beat:', JSON.stringify(deviceBeat));
     console.log('timeout:', timeoutCount);
-    
-    timeoutCount--;
     if (timeoutCount <= 0) {
         process.exit();
     }
+    timeoutCount--;
 
 }, 1000);
